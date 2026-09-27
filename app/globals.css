@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090B;
+  --surface: #111113;
+  --surface-elevated: #18181B;
+  --border: #27272A;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --accent: #A3E635;
+  --accent-muted: rgba(163, 230, 53, 0.15);
+}
+
+@theme inline {
+  --color-studio-bg: var(--background);
+  --color-studio-surface: var(--surface);
+  --color-studio-elevated: var(--surface-elevated);
+  --color-studio-border: var(--border);
+  --color-studio-primary: var(--text-primary);
+  --color-studio-secondary: var(--text-secondary);
+  --color-studio-muted: var(--text-muted);
+  --color-studio-accent: var(--accent);
+  --font-sans: var(--font-geist-sans), Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+* {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3F3F46;
+}
+
+/* Grid & dot matrix background patterns for dark aesthetic */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(39, 39, 42, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(39, 39, 42, 0.4) 1px, transparent 1px);
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(113, 113, 122, 0.25) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Accessibility: Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
