@@ -1,112 +1,125 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, ArrowUpRight, Boxes, Braces, Check, ChevronRight, Database, Fingerprint, Globe2, Layers3, ShieldCheck, Sparkles, Workflow, Zap } from "lucide-react";
+import { Activity, ArrowUpRight, Check, ChevronRight, CirclePause, Cpu, Database, Radio, ShieldCheck, Sparkles, Workflow, Zap } from "lucide-react";
 
-type Layer = "product" | "platform" | "intelligence";
+type View = "platform" | "intelligence" | "automation";
 
-const layers: { id: Layer; label: string; icon: typeof Layers3; status: string }[] = [
-  { id: "product", label: "Product", icon: Boxes, status: "Your experience, connected" },
-  { id: "platform", label: "Platform", icon: Layers3, status: "A resilient foundation" },
-  { id: "intelligence", label: "Intelligence", icon: Sparkles, status: "Systems that get smarter" },
-];
-
-const systems: Record<Layer, { name: string; detail: string; icon: typeof Layers3; position: string; color: string }[]> = {
-  product: [
-    { name: "Web app", detail: "Fast, focused experiences", icon: Globe2, position: "left-[3%] top-[9%]", color: "text-sky-300" },
-    { name: "Your team", detail: "One clear control surface", icon: Boxes, position: "right-[3%] top-[9%]", color: "text-violet-300" },
-    { name: "Mobile", detail: "Native where it matters", icon: Activity, position: "left-[3%] bottom-[8%]", color: "text-amber-300" },
-    { name: "Integrations", detail: "Tools working together", icon: Workflow, position: "right-[3%] bottom-[8%]", color: "text-[#B8EF69]" },
-  ],
-  platform: [
-    { name: "API & edge", detail: "14ms average response", icon: Braces, position: "left-[3%] top-[9%]", color: "text-sky-300" },
-    { name: "Cloud", detail: "Always-on infrastructure", icon: Globe2, position: "right-[3%] top-[9%]", color: "text-violet-300" },
-    { name: "Database", detail: "Secure, reliable storage", icon: Database, position: "left-[3%] bottom-[8%]", color: "text-amber-300" },
-    { name: "Identity", detail: "Access by design", icon: Fingerprint, position: "right-[3%] bottom-[8%]", color: "text-[#B8EF69]" },
-  ],
-  intelligence: [
-    { name: "Signals", detail: "Events become insight", icon: Activity, position: "left-[3%] top-[9%]", color: "text-sky-300" },
-    { name: "AI layer", detail: "Useful, grounded AI", icon: Sparkles, position: "right-[3%] top-[9%]", color: "text-violet-300" },
-    { name: "Knowledge", detail: "Your data, in context", icon: Database, position: "left-[3%] bottom-[8%]", color: "text-amber-300" },
-    { name: "Automation", detail: "Less busywork, by default", icon: Zap, position: "right-[3%] bottom-[8%]", color: "text-[#B8EF69]" },
-  ],
+const dashboard: Record<View, {
+  name: string;
+  heading: string;
+  description: string;
+  metrics: { name: string; value: string; note: string }[];
+  chartLabel: string;
+  chartValue: string;
+  chart: number[];
+  systems: { name: string; note: string }[];
+  events: { time: string; name: string; detail: string }[];
+}> = {
+  platform: {
+    name: "Platform", heading: "Your product, running smoothly.", description: "A clear view across the systems behind your product.",
+    metrics: [{ name: "Uptime", value: "99.98%", note: "this month" }, { name: "API latency", value: "14ms", note: "p95 response" }, { name: "Requests", value: "2,410", note: "per second" }],
+    chartLabel: "Request volume", chartValue: "2,410 req/s", chart: [30, 36, 31, 43, 38, 50, 46, 42, 58, 55, 63, 52, 66, 61, 74, 69, 77, 70, 88, 78, 84, 73, 91, 82, 96, 86, 92, 80, 89, 100],
+    systems: [{ name: "Application", note: "All regions healthy" }, { name: "Database", note: "Pool operating normally" }, { name: "Edge network", note: "No delivery delays" }],
+    events: [{ time: "15:44:07", name: "API", detail: "Request completed in 14ms" }, { time: "15:44:05", name: "DATABASE", detail: "Connection pool healthy" }, { time: "15:44:02", name: "EDGE", detail: "Route cache refreshed" }],
+  },
+  intelligence: {
+    name: "Intelligence", heading: "Knowledge, ready when you need it.", description: "Search, context, and AI working as one system.",
+    metrics: [{ name: "Match quality", value: "0.984", note: "similarity score" }, { name: "Response", value: "120ms", note: "end to end" }, { name: "Knowledge", value: "4.8k", note: "indexed sources" }],
+    chartLabel: "Search activity", chartValue: "684 searches / min", chart: [22, 35, 29, 42, 35, 55, 44, 63, 51, 46, 69, 58, 72, 61, 83, 69, 77, 62, 91, 74, 85, 72, 97, 81, 89, 77, 100, 83, 92, 86],
+    systems: [{ name: "Semantic search", note: "Index is up to date" }, { name: "AI services", note: "Response within target" }, { name: "Knowledge store", note: "Sources synchronized" }],
+    events: [{ time: "15:44:07", name: "SEARCH", detail: "Relevant match found · 0.984" }, { time: "15:44:05", name: "KNOWLEDGE", detail: "Source indexed successfully" }, { time: "15:44:02", name: "AI", detail: "Response streamed in 120ms" }],
+  },
+  automation: {
+    name: "Automation", heading: "The right work, already in motion.", description: "Events flow through your business without the busywork.",
+    metrics: [{ name: "Events", value: "1,284", note: "this hour" }, { name: "Delivered", value: "99.9%", note: "success rate" }, { name: "Processing", value: "18ms", note: "average" }],
+    chartLabel: "Workflow activity", chartValue: "1,284 events", chart: [27, 34, 26, 44, 36, 53, 41, 61, 50, 67, 58, 48, 72, 59, 80, 67, 88, 72, 81, 65, 94, 77, 85, 70, 96, 82, 91, 78, 100, 88],
+    systems: [{ name: "Event queue", note: "No items waiting" }, { name: "Workflows", note: "All jobs completed" }, { name: "Integrations", note: "Connected and in sync" }],
+    events: [{ time: "15:44:07", name: "WORKFLOW", detail: "Order confirmation sent" }, { time: "15:44:05", name: "QUEUE", detail: "Batch processed · 18ms" }, { time: "15:44:02", name: "INTEGRATION", detail: "Inventory synchronized" }],
+  },
 };
 
-export function ProductDashboardVisual() {
-  const [activeLayer, setActiveLayer] = useState<Layer>("platform");
-  const [activeSystem, setActiveSystem] = useState(0);
-  const active = layers.find((layer) => layer.id === activeLayer)!;
-  const nodes = systems[activeLayer];
+const views: { id: View; icon: typeof Activity }[] = [
+  { id: "platform", icon: Activity },
+  { id: "intelligence", icon: Sparkles },
+  { id: "automation", icon: Workflow },
+];
 
-  function selectLayer(layer: Layer) {
-    setActiveLayer(layer);
-    setActiveSystem(0);
-  }
+export function ProductDashboardVisual() {
+  const [view, setView] = useState<View>("platform");
+  const [paused, setPaused] = useState(false);
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  const active = dashboard[view];
+  const chartPoints = active.chart.map((value, index) => `${(index / (active.chart.length - 1)) * 600},${116 - value}`).join(" ");
+  const chartPath = `M ${chartPoints.replaceAll(" ", " L ")}`;
 
   return (
-    <div className="group relative isolate mx-auto w-full max-w-[660px] min-w-0 [perspective:1200px]">
-      <div className="absolute -inset-10 -z-10 rounded-full bg-[radial-gradient(ellipse_at_50%_45%,rgba(163,230,53,0.16),transparent_68%)] blur-3xl transition-opacity duration-700 group-hover:opacity-150" />
-      <div className="overflow-hidden rounded-2xl border border-white/[0.11] bg-[#0b0d0f]/95 shadow-[0_32px_100px_-35px_rgba(0,0,0,0.95)] backdrop-blur-xl transition-transform duration-500 ease-out group-hover:[transform:rotateY(-1deg)_rotateX(1deg)_translateY(-3px)] sm:rounded-[22px]">
-        <header className="flex items-center justify-between gap-3 border-b border-white/[0.08] bg-white/[0.025] px-4 py-3.5 sm:px-5">
+    <div className="relative mx-auto w-full max-w-[660px] min-w-0">
+      <div className="pointer-events-none absolute -inset-8 -z-10 rounded-full bg-[radial-gradient(ellipse_at_50%_48%,rgba(163,230,53,0.11),transparent_68%)] blur-3xl" />
+      <div className="overflow-hidden rounded-2xl border border-[#27272A] bg-[#111113] shadow-[0_28px_80px_-38px_rgba(0,0,0,0.95)] sm:rounded-[20px]">
+        <header className="flex items-center justify-between gap-3 border-b border-[#27272A] bg-[#18181B] px-4 py-3.5 sm:px-5">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex shrink-0 gap-1.5" aria-hidden="true"><span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]/80" /><span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]/80" /><span className="h-2.5 w-2.5 rounded-full bg-[#28C840]/80" /></div>
-            <span className="h-5 w-px bg-white/10" />
-            <div className="truncate text-[11px] text-zinc-400 sm:text-xs"><span className="font-medium text-zinc-200">stackworks</span><span className="mx-1.5 text-zinc-700">/</span>system map</div>
+            <div className="flex shrink-0 gap-1.5" aria-hidden="true"><span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" /><span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" /><span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" /></div>
+            <span className="h-4 w-px bg-[#3F3F46]" />
+            <span className="truncate font-mono text-[10px] tracking-tight text-[#A1A1AA] sm:text-[11px]">app.stackworks.studio <span className="text-[#52525B]">/</span> system-v2.4</span>
           </div>
-          <div className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#A3E635]/20 bg-[#A3E635]/[0.07] px-2.5 py-1.5 text-[10px] font-medium tracking-wide text-[#C7F58A] sm:text-[11px]">
-            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A3E635] opacity-50" /><span className="relative h-2 w-2 rounded-full bg-[#A3E635]" /></span>Systems online
+          <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#A3E635]/20 bg-[#A3E635]/[0.06] px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-wider text-[#B8EF69] sm:text-[10px]">
+            <span className={`h-1.5 w-1.5 rounded-full bg-[#A3E635] ${paused ? "" : "animate-pulse"}`} />{paused ? "Paused" : "Live"}
           </div>
         </header>
 
-        <div className="px-4 pt-4 sm:px-5 sm:pt-5">
-          <div className="flex items-start justify-between gap-3">
-            <div><div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#B8EF69]">One connected system</div><h2 className="mt-1.5 text-lg font-medium tracking-tight text-white sm:text-xl">See how it all works together.</h2></div>
-            <div className="hidden items-center gap-1.5 pt-1 text-[10px] text-zinc-500 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-[#A3E635]" /> Live architecture</div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_190px]">
+          <main className="min-w-0 p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0"><div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.15em] text-[#A3E635]"><Radio className="h-3.5 w-3.5" /> System overview</div><h2 className="text-[17px] font-medium leading-snug tracking-tight text-[#FAFAFA] sm:text-lg">{active.heading}</h2><p className="mt-1 text-[11px] leading-relaxed text-[#71717A]">{active.description}</p></div>
+              <button type="button" onClick={() => setPaused((value) => !value)} aria-label={paused ? "Resume preview" : "Pause preview"} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#27272A] bg-[#18181B] text-zinc-400 transition-colors hover:border-[#3F3F46] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3E635]/70">{paused ? <Radio className="h-3.5 w-3.5" /> : <CirclePause className="h-3.5 w-3.5" />}</button>
+            </div>
 
-          <div className="mt-4 flex gap-1.5 rounded-xl border border-white/[0.07] bg-black/25 p-1 sm:mt-5 sm:inline-flex sm:gap-1">
-            {layers.map(({ id, label, icon: Icon }) => <button key={id} type="button" aria-pressed={activeLayer === id} onClick={() => selectLayer(id)} className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3E635]/70 sm:flex-none sm:justify-start sm:px-3 sm:text-[11px] ${activeLayer === id ? "bg-white/[0.09] text-white shadow-sm shadow-black/30" : "text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200"}`}><Icon className={`h-3.5 w-3.5 ${activeLayer === id ? "text-[#B8EF69]" : ""}`} />{label}</button>)}
-          </div>
+            <div className="mt-4 flex gap-1 border-b border-[#27272A] sm:mt-5">
+              {views.map(({ id, icon: Icon }) => <button key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)} className={`relative inline-flex flex-1 items-center justify-center gap-1.5 px-2 pb-2.5 pt-1 text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#A3E635]/70 sm:flex-none sm:justify-start sm:px-3 sm:text-[11px] ${view === id ? "text-[#FAFAFA]" : "text-[#71717A] hover:text-[#D4D4D8]"}`}><Icon className={`h-3.5 w-3.5 ${view === id ? "text-[#A3E635]" : ""}`} />{dashboard[id].name}{view === id && <span className="absolute inset-x-2 bottom-0 h-px bg-[#A3E635] sm:inset-x-3" />}</button>)}
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 divide-x divide-[#27272A] rounded-xl border border-[#27272A] bg-[#09090B]/55 py-3">
+              {active.metrics.map((metric) => <div key={metric.name} className="min-w-0 px-2.5 sm:px-3.5"><div className="truncate text-[9px] font-mono uppercase tracking-wider text-[#71717A]">{metric.name}</div><div className="mt-1 font-mono text-base font-medium tracking-tight text-[#FAFAFA] sm:text-lg">{metric.value}</div><div className="mt-0.5 truncate text-[9px] text-[#71717A]">{metric.note}</div></div>)}
+            </div>
+
+            <section aria-label={active.chartLabel} className="mt-3.5 rounded-xl border border-[#27272A] bg-[#09090B]/45 p-3 sm:p-3.5">
+              <div className="flex items-center justify-between gap-2"><div className="flex items-center gap-1.5 text-[10px] font-mono text-[#A1A1AA]"><Activity className="h-3.5 w-3.5 text-[#A3E635]" />{active.chartLabel}</div><div className="font-mono text-[10px] text-[#FAFAFA]">{active.chartValue}</div></div>
+              <div className="relative mt-3 h-[95px] overflow-hidden">
+                <div className="absolute inset-0 flex flex-col justify-between"><span className="border-t border-dashed border-[#27272A]" /><span className="border-t border-dashed border-[#27272A]" /><span className="border-t border-dashed border-[#27272A]" /></div>
+                <svg className="absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 600 116" preserveAspectRatio="none" role="img" aria-label={`${active.chartLabel} trend rising over the last hour`}>
+                  <defs><linearGradient id="chart-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#A3E635" stopOpacity=".20" /><stop offset="1" stopColor="#A3E635" stopOpacity="0" /></linearGradient></defs>
+                  <path d={`${chartPath} L 600 116 L 0 116 Z`} fill="url(#chart-fill)" />
+                  <polyline points={chartPoints} fill="none" stroke="#A3E635" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                  <circle cx="600" cy={116 - active.chart[active.chart.length - 1]} r="4" fill="#A3E635" stroke="#111113" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                </svg>
+                <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-[#111113]/60 to-transparent" />
+              </div>
+              <div className="mt-1 flex justify-between font-mono text-[8px] text-[#52525B]"><span>60 min ago</span><span>45 min</span><span>30 min</span><span>15 min</span><span>now</span></div>
+            </section>
+
+            <section aria-label="Recent activity" className="mt-3.5">
+              <div className="mb-1.5 flex items-center justify-between"><span className="text-[9px] font-mono uppercase tracking-[0.13em] text-[#71717A]">Recent activity</span><button type="button" onClick={() => setShowAllEvents((value) => !value)} aria-expanded={showAllEvents} className="inline-flex items-center gap-1 text-[9px] text-[#71717A] transition-colors hover:text-[#FAFAFA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3E635]/70">{showAllEvents ? "Show less" : "View stream"} <ChevronRight className={`h-3 w-3 transition-transform ${showAllEvents ? "rotate-90" : ""}`} /></button></div>
+              <div className="divide-y divide-[#27272A]/70">
+                {active.events.slice(0, showAllEvents ? active.events.length : 2).map((event) => <div key={event.time} className="flex items-center gap-2 py-2"><span className="shrink-0 font-mono text-[9px] text-[#52525B]">{event.time}</span><span className="shrink-0 rounded border border-[#27272A] bg-[#18181B] px-1.5 py-0.5 font-mono text-[8px] text-[#A1A1AA]">{event.name}</span><span className="min-w-0 flex-1 truncate text-[10px] text-[#A1A1AA]">{event.detail}</span><Check className="h-3 w-3 shrink-0 text-[#A3E635]" /></div>)}
+              </div>
+            </section>
+          </main>
+
+          <aside className="border-t border-[#27272A] bg-[#09090B]/35 px-4 py-4 md:border-l md:border-t-0 md:px-3.5 md:py-5">
+            <div className="flex items-center justify-between"><span className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#71717A]">System status</span><span className="h-1.5 w-1.5 rounded-full bg-[#A3E635]" /></div>
+            <div className="mt-3 space-y-2">
+              {active.systems.map((system, index) => { const Icon = index === 0 ? Cpu : index === 1 ? Database : ShieldCheck; return <div key={system.name} className="rounded-lg border border-[#27272A] bg-[#111113] p-2.5"><div className="flex items-center gap-2"><Icon className="h-3.5 w-3.5 text-[#A3E635]" /><span className="text-[10px] font-medium text-[#E4E4E7]">{system.name}</span></div><div className="mt-1.5 flex items-center gap-1.5 pl-[22px] text-[9px] text-[#71717A]"><span className="h-1 w-1 rounded-full bg-[#A3E635]" />{system.note}</div></div>; })}
+            </div>
+            <div className="mt-3.5 border-t border-[#27272A] pt-3.5">
+              <div className="text-[9px] font-mono uppercase tracking-[0.15em] text-[#71717A]">Environment</div>
+              <div className="mt-2.5 space-y-2 text-[9px] text-[#A1A1AA]"><div className="flex items-center justify-between"><span>Region</span><span className="font-mono text-zinc-300">US East</span></div><div className="flex items-center justify-between"><span>Database</span><span className="font-mono text-zinc-300">Neon PG</span></div><div className="flex items-center justify-between"><span>Deploy</span><span className="font-mono text-zinc-300">Vercel</span></div></div>
+            </div>
+            <div className="mt-3.5 rounded-lg border border-[#A3E635]/15 bg-[#A3E635]/[0.045] p-2.5"><div className="flex items-center gap-1.5 text-[9px] font-medium text-[#B8EF69]"><ShieldCheck className="h-3 w-3" />All systems operational</div><div className="mt-1 text-[9px] leading-relaxed text-[#71717A]">Health checks are passing across your stack.</div></div>
+            <div className="mt-3 hidden items-center justify-between border-t border-[#27272A] pt-3 text-[9px] text-[#52525B] md:flex"><span>Details</span><ArrowUpRight className="h-3 w-3" /></div>
+          </aside>
         </div>
-
-        <div className="relative mx-3 mt-3 h-[295px] overflow-hidden rounded-xl border border-white/[0.06] bg-[#0f1112] sm:mx-5 sm:mt-4 sm:h-[320px] sm:rounded-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_52%,rgba(163,230,53,0.075),transparent_45%)]" />
-          <div className="absolute inset-0 opacity-35 [background-image:radial-gradient(rgba(161,161,170,0.28)_0.7px,transparent_0.7px)] [background-size:18px_18px]" />
-          <div className="absolute left-1/2 top-1/2 h-[210px] w-[210px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/[0.09] sm:h-[238px] sm:w-[238px]" />
-          <div className="absolute left-1/2 top-1/2 h-[154px] w-[154px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.06] sm:h-[178px] sm:w-[178px]" />
-
-          <svg aria-hidden="true" className="absolute inset-0 h-full w-full" viewBox="0 0 600 320" preserveAspectRatio="none">
-            <defs><linearGradient id="system-line" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#A3E635" stopOpacity=".12" /><stop offset=".5" stopColor="#A3E635" stopOpacity=".62" /><stop offset="1" stopColor="#A3E635" stopOpacity=".12" /></linearGradient></defs>
-            <path d="M112 74 C174 74 205 115 300 160" fill="none" stroke="url(#system-line)" strokeWidth="1.2" />
-            <path d="M488 74 C426 74 395 115 300 160" fill="none" stroke="url(#system-line)" strokeWidth="1.2" />
-            <path d="M112 246 C174 246 205 205 300 160" fill="none" stroke="url(#system-line)" strokeWidth="1.2" />
-            <path d="M488 246 C426 246 395 205 300 160" fill="none" stroke="url(#system-line)" strokeWidth="1.2" />
-            <circle className="motion-reduce:hidden" r="2.4" fill="#C7F58A"><animateMotion dur="3.8s" repeatCount="indefinite" path="M112 74 C174 74 205 115 300 160" /></circle>
-            <circle className="motion-reduce:hidden" r="2.4" fill="#C7F58A"><animateMotion dur="4.3s" repeatCount="indefinite" path="M488 74 C426 74 395 115 300 160" /></circle>
-            <circle className="motion-reduce:hidden" r="2.4" fill="#C7F58A"><animateMotion dur="4.6s" repeatCount="indefinite" path="M112 246 C174 246 205 205 300 160" /></circle>
-            <circle className="motion-reduce:hidden" r="2.4" fill="#C7F58A"><animateMotion dur="4s" repeatCount="indefinite" path="M488 246 C426 246 395 205 300 160" /></circle>
-          </svg>
-
-          {nodes.map(({ name, detail, icon: Icon, position, color }, index) => <button key={`${activeLayer}-${name}`} type="button" aria-pressed={activeSystem === index} onClick={() => setActiveSystem(index)} className={`absolute z-10 ${position} flex w-[43%] max-w-[178px] items-center gap-2 rounded-xl border px-2.5 py-2 text-left backdrop-blur-md transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A3E635]/80 sm:w-[37%] sm:max-w-[190px] sm:gap-2.5 sm:px-3 sm:py-2.5 ${activeSystem === index ? "border-[#A3E635]/30 bg-[#1a2013]/95 shadow-[0_0_28px_rgba(163,230,53,0.1)]" : "border-white/[0.09] bg-[#141618]/95 hover:border-white/20 hover:bg-[#191c1e]"}`}>
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.035] ${color}`}><Icon className="h-4 w-4" /></span><span className="min-w-0"><span className="block truncate text-[11px] font-medium text-zinc-100 sm:text-xs">{name}</span><span className="mt-0.5 block truncate text-[9px] text-zinc-500 sm:text-[10px]">{detail}</span></span><ChevronRight className={`ml-auto hidden h-3 w-3 shrink-0 sm:block ${activeSystem === index ? "text-[#B8EF69]" : "text-zinc-700"}`} />
-          </button>)}
-
-          <div className="absolute left-1/2 top-1/2 z-20 flex h-[102px] w-[102px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#A3E635]/25 bg-[#11160d]/95 shadow-[0_0_45px_rgba(163,230,53,0.12),inset_0_0_22px_rgba(163,230,53,0.045)] sm:h-[118px] sm:w-[118px]">
-            <span className="absolute inset-[7px] rounded-full border border-dashed border-[#A3E635]/15 motion-safe:animate-[spin_28s_linear_infinite]" />
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#A3E635]/10 text-[#C7F58A] sm:h-9 sm:w-9"><Layers3 className="h-4.5 w-4.5 sm:h-5 sm:w-5" /></span>
-            <span className="mt-2 text-[10px] font-semibold tracking-wide text-white sm:text-[11px]">Stackworks</span>
-            <span className="mt-0.5 text-[8px] uppercase tracking-[0.16em] text-[#B8EF69]/75">{active.label}</span>
-          </div>
-
-          <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 text-[9px] text-zinc-600 sm:bottom-3 sm:left-4 sm:text-[10px]"><span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-zinc-400">i</span> Select a system to explore</div>
-          <div className="absolute bottom-2.5 right-3 inline-flex items-center gap-1.5 text-[9px] text-zinc-600 sm:bottom-3 sm:right-4 sm:text-[10px]"><span className="h-1.5 w-1.5 rounded-full bg-[#A3E635]" /> Connected</div>
-        </div>
-
-        <footer className="mx-3 mb-3 mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2.5 sm:mx-5 sm:mb-5 sm:mt-3 sm:px-4 sm:py-3">
-          <div className="flex min-w-0 items-center gap-2.5"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#A3E635]/[0.08] text-[#B8EF69]"><Check className="h-4 w-4" /></span><span className="min-w-0"><span className="block truncate text-[10px] font-medium text-zinc-200 sm:text-[11px]">{layers.find((layer) => layer.id === activeLayer)?.status}</span><span className="mt-0.5 block truncate text-[9px] text-zinc-500 sm:text-[10px]">{nodes[activeSystem].name} <span className="text-zinc-700">·</span> Ready for what&apos;s next</span></span></div>
-          <span className="inline-flex shrink-0 items-center gap-1 text-[9px] font-medium text-[#B8EF69] sm:text-[10px]">Explore <ArrowUpRight className="h-3 w-3" /></span>
-        </footer>
-        <div className="sr-only" aria-live="polite">{active.label}: {nodes[activeSystem].name}. {nodes[activeSystem].detail}</div>
+        <footer className="flex items-center justify-between border-t border-[#27272A] bg-[#09090B]/45 px-4 py-2.5 font-mono text-[8px] text-[#52525B] sm:px-5"><span className="inline-flex items-center gap-1.5"><Zap className="h-2.5 w-2.5 text-[#A3E635]" />Product system preview</span><span>STACKWORKS <span className="mx-1.5 text-[#3F3F46]">/</span> V2.4</span></footer>
       </div>
     </div>
   );
